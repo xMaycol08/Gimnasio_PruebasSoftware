@@ -1,21 +1,21 @@
 ---
 title: Reparto de trabajo - Control de Membresías (Pruebas de Software)
 ---
-%% Equipo: Maycol, Ruben, Andres y Danny.
+%% Equipo: Maycol, Rubén, Andres y Danny.
 %% Flujo: rama de funcionalidad -> Pull Request -> revisión de otro integrante -> merge a main.
-%% Reglas: main protegido, PR obligatorio, CI en verde (ESLint + Jest >= 70 % + SonarQube).
+%% Reglas: main protegido, PR obligatorio, CI en verde (ESLint + Jest >= 70 %), SonarQube y Postman como entregables.
 flowchart TD
     MAIN(["main (protegido)<br/>solo entra por Pull Request aprobado"])
 
     subgraph F0["Fase 0 - Base del proyecto"]
-        M0["MAYCOL<br/>feature/setup-calidad<br/>- npm init, estructura src/ y tests/<br/>- ESLint (config + reglas)<br/>- Jest con umbral de cobertura 70 %<br/>- sonar-project.properties + SonarQube (Docker)<br/>- GitHub Actions: lint + test + cobertura"]
+        M0["MAYCOL (hecha)<br/>Fase 0: base del proyecto<br/>- Express + conexión a Supabase (.env, .gitignore)<br/>- ESLint y Jest con umbral de cobertura 70 %<br/>- sonar-project.properties + guía SonarQube<br/>- GitHub Actions: lint + cobertura<br/>- Colección Postman base y guías por integrante"]
     end
 
     subgraph F1["Fase 1 - Módulos (en paralelo)"]
-        R1["RUBEN<br/>feature/clientes<br/>- CRUD Cliente<br/>- Validar cédula, email, teléfono<br/>- Cédula/email únicos<br/>- Tests: partición de equivalencia y valores límite"]
-        A1["ANDRES<br/>feature/membresias<br/>- CRUD Membresía (semanal, mensual, anual)<br/>- Validar precio y duracion_dias > 0<br/>- Cálculo de fecha de vencimiento<br/>- Tests: valores límite y tabla de decisión"]
-        D1["DANNY<br/>feature/accesos<br/>- Registrar entrada y salida<br/>- Impedir doble entrada sin salida<br/>- Calcular tiempo de permanencia<br/>- Tests: transiciones de estado y casos negativos"]
-        M1["MAYCOL<br/>feature/pagos<br/>- Registrar pago y estado (PAGADO, PENDIENTE, ANULADO)<br/>- Membresía activa o vencida según fecha<br/>- Renovación y pagos duplicados<br/>- Tests: fechas límite y tabla de decisión"]
+        R1["RUBEN<br/>feature/clientes<br/>- CRUD Cliente<br/>- Validar cédula, email, teléfono<br/>- Cédula/email únicos<br/>- Tests: partición de equivalencia y valores límite<br/>- Colección Postman"]
+        A1["ANDRES<br/>feature/membresias<br/>- CRUD Membresía (semanal, mensual, anual)<br/>- Validar precio y duracion_dias > 0<br/>- Cálculo de fecha de vencimiento<br/>- Tests: valores límite y tabla de decisión<br/>- Colección Postman"]
+        D1["DANNY<br/>feature/accesos<br/>- Registrar entrada y salida<br/>- Impedir doble entrada sin salida<br/>- Calcular tiempo de permanencia<br/>- Tests: transiciones de estado y casos negativos<br/>- Colección Postman"]
+        M1["MAYCOL<br/>feature/pagos<br/>- Registrar pago y estado (PAGADO, PENDIENTE, ANULADO)<br/>- Membresía activa o vencida según fecha<br/>- Renovación y pagos duplicados<br/>- Tests: fechas límite y tabla de decisión<br/>- Colección Postman"]
     end
 
     subgraph F2["Fase 2 - Integración"]
@@ -24,7 +24,7 @@ flowchart TD
     end
 
     subgraph F3["Fase 3 - Calidad y cierre"]
-        Q1["TODOS<br/>- Defectos intencionales documentados (bug -> test que lo detecta -> corrección)<br/>- Cobertura Jest >= 70 %<br/>- Análisis SonarQube: bugs, vulnerabilidades, code smells<br/>- Validación vs verificación: matriz de trazabilidad requisito -> prueba<br/>- Informe final del laboratorio"]
+        Q1["TODOS<br/>- Defectos intencionales documentados (bug -> test que lo detecta -> corrección)<br/>- Cobertura Jest >= 70 %<br/>- Análisis SonarQube: bugs, vulnerabilidades, code smells<br/>- Postman: ejecutar todas las colecciones<br/>- Validación vs verificación: matriz de trazabilidad requisito -> prueba<br/>- Informe final del laboratorio"]
     end
 
     M0 -->|"PR revisado por Ruben"| MAIN

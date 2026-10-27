@@ -2,8 +2,8 @@
 
 **Proyecto:** Sistema de Gestión de Gimnasio / Control de Membresías
 **Asignatura:** Pruebas de Software, ESPE (Carrera de Software)
-**Equipo:** Maycol, Ruben, Andres y Danny
-**Tecnología:** JavaScript (Node.js), Jest, ESLint, SonarQube
+**Equipo:** Maycol, Rubén, Andres y Danny
+**Tecnología:** JavaScript (Node.js + Express), PostgreSQL en Supabase, Jest, ESLint, SonarQube, Postman
 **Documentos relacionados:** `docs/modelado/*.mmd`, `database/schema.sql`, `docs/planificacion/reparto-trabajo.mmd`
 
 ---
@@ -65,13 +65,17 @@ Cada módulo tiene la misma estructura, así todos leen el código de los demás
 ```
 src/modules/<modulo>/
     <modulo>.validaciones.js   # funciones puras de validación (las más fáciles de probar)
-    <modulo>.repositorio.js    # acceso a datos (en memoria; luego se puede cambiar por PostgreSQL)
+    <modulo>.repositorio.js    # consultas SQL a Supabase (único archivo que habla con la base)
     <modulo>.servicio.js       # reglas de negocio; recibe sus dependencias por parámetro
-    index.js                   # exporta únicamente el contrato público del módulo
+    <modulo>.router.js         # endpoints de Express (HTTP <-> servicio)
+    index.js                   # exporta { basePath, router } y el contrato público del módulo
 tests/<modulo>/
     <modulo>.validaciones.test.js
     <modulo>.servicio.test.js
+    <modulo>.router.test.js
 ```
+
+La API (`src/app.js`) carga automáticamente cada carpeta de `src/modules/` que tenga un `index.js` con `basePath` y `router`, así nadie edita archivos compartidos. La plantilla con código está en [`docs/guias/plantilla-modulo.md`](../guias/plantilla-modulo.md).
 
 ### 3.2 Dependencias entre módulos
 
@@ -91,8 +95,9 @@ flowchart TD
 
 - Las dependencias se **inyectan** (el servicio las recibe al crearse). En las pruebas se reemplazan por **dobles de prueba (stubs/mocks de Jest)**.
 - Cada persona programa contra el **contrato** de la sección 5, no contra el código real del otro.
-- Los repositorios son en memoria, por lo que nadie necesita instalar ni compartir una base de datos para trabajar.
-- `database/schema.sql` queda como referencia del modelo físico.
+- En ejecución real los repositorios usan la base compartida de Supabase (`DATABASE_URL` en el `.env` de cada quien). En las pruebas de Jest el repositorio se reemplaza por un stub, así **las pruebas no necesitan base de datos** y no dependen de nadie.
+- Las dependencias de otros módulos se cargan de forma perezosa (`() => require('../cliente')`), así tu rama funciona aunque el módulo del compañero todavía no esté en `main`.
+- `database/schema.sql` es el esquema ya ejecutado en Supabase.
 
 ---
 
@@ -104,12 +109,19 @@ El sistema tiene **4 tablas** (`CLIENTE`, `MEMBRESIA`, `PAGO`, `ACCESO`) y **cad
 
 | Integrante | Tabla(s) asignada(s) | Módulo | Rama de funcionalidad | Revisa el PR de |
 |---|---|---|---|---|
-| **Maycol** | `PAGO` (y coordinación de calidad) | `src/modules/pago` + configuración global | `feature/setup-calidad`, luego `feature/pagos` | Danny |
+| **Maycol** | `PAGO` (y coordinación de calidad) | `src/modules/pago` + configuración global | Fase 0 ya hecha; luego `feature/pagos` | Danny |
 | **Ruben** | `CLIENTE` | `src/modules/cliente` | `feature/clientes` | Maycol |
 | **Andres** | `MEMBRESIA` | `src/modules/membresia` | `feature/membresias` | Ruben |
 | **Danny** | `ACCESO` | `src/modules/acceso` | `feature/accesos` | Andres |
 
-Los nombres de rama indican la funcionalidad, no la persona. Se crean desde `main` cuando cada quien empieza su parte.
+Los nombres de rama indican la funcionalidad, no la persona, y se crean desde `main` una vez fusionada la Fase 0. Cada integrante tiene su guía detallada (endpoints, reglas, pruebas, defectos y checklist):
+
+| Integrante | Guía |
+|---|---|
+| Rubén | [`docs/tareas/ruben-clientes.md`](../tareas/ruben-clientes.md) |
+| Andres | [`docs/tareas/andres-membresias.md`](../tareas/andres-membresias.md) |
+| Maycol | [`docs/tareas/maycol-pagos.md`](../tareas/maycol-pagos.md) |
+| Danny | [`docs/tareas/danny-accesos.md`](../tareas/danny-accesos.md) |
 
 ### 4.2 Maycol: Pagos y calidad del proyecto
 
@@ -179,13 +191,13 @@ Estas firmas son el acuerdo. **No se cambian sin avisar al grupo y sin un PR que
 | Cliente (Ruben) | `obtenerPorId(idCliente)` | `{ id_cliente, nombre, cedula, telefono, email }` o `null` |
 | Cliente (Ruben) | `clienteExiste(idCliente)` | `boolean` |
 | Membresía (Andres) | `obtenerPorId(idMembresia)` | `{ id_membresia, nombre, precio, duracion_dias }` o `null` |
-| Membresía (Andres) | `calcularVencimiento(fechaPago, duracionDias)` | `Date` |
+| Membresía (Andres) | `calcularVencimiento(fechaPago, duracionDias)` | `'YYYY-MM-DD'` |
 | Pago (Maycol) | `tieneMembresiaVigente(idCliente, fecha)` | `boolean` |
 | Acceso (Danny) | `registrarEntrada(idCliente, fechaHora)` / `registrarSalida(idCliente, fechaHora)` | registro de acceso, o lanza `Error` con mensaje descriptivo |
 
 **Convenciones comunes:**
-- Fechas como objetos `Date`; para comparar vigencia se usa solo la parte de fecha (sin hora).
-- Errores de negocio con `throw new Error('mensaje claro')`.
+- Las fechas (`DATE`) son texto `'YYYY-MM-DD'`; las fechas con hora (`TIMESTAMP`) son `Date` en UTC y ISO 8601 en JSON. Para comparar vigencia se usa solo la parte de fecha.
+- Errores de negocio con las clases de `src/shared/errores.js` (`ErrorValidacion` 400, `ErrorNoEncontrado` 404, `ErrorConflicto` 409, `ErrorReglaNegocio` 422); el manejador global los convierte a JSON `{ "error": "mensaje" }`.
 - Nombres de campos idénticos a los del modelo lógico (`id_cliente`, `fecha_pago`, etc.).
 - Identificadores numéricos autoincrementales generados por el repositorio.
 
@@ -209,17 +221,17 @@ Como cada persona edita carpetas distintas, los conflictos de merge no deberían
 1. `main` está protegido: nadie hace push directo, todo entra por Pull Request.
 2. Antes de empezar: `git checkout main && git pull`, luego `git checkout -b feature/<funcionalidad>`.
 3. Commits pequeños y descriptivos con prefijos: `feat:`, `test:`, `fix:`, `docs:`, `refactor:`, `chore:`.
-4. Antes de abrir el PR: `git pull origin main` para traer los cambios, y ejecutar `npm run lint` y `npm test`.
+4. Antes de abrir el PR: `git pull origin main` para traer los cambios, y ejecutar `npm run lint` y `npm run test:cov`.
 5. El PR lo revisa el integrante indicado en 4.1, y solo se fusiona con el CI en verde y al menos una aprobación.
 6. Después del merge, se elimina la rama de funcionalidad.
 
 ### 6.3 Orden recomendado de entrada a `main`
 
-1. **Maycol**: `feature/setup-calidad` (lo primero, porque da a todos Jest y ESLint).
+1. **Maycol**: Fase 0 (Express, Jest, ESLint, SonarQube, CI, Postman base). Es lo primero, porque da a todos la base.
 2. Ruben, Andres, Danny y Maycol (`feature/pagos`) en paralelo, en cualquier orden.
 3. Integración (control de acceso por membresía), cuando los módulos anteriores estén en `main`.
 
-Mientras el setup no esté fusionado, cada quien puede escribir su código y sus pruebas en su rama; se ejecutan en cuanto se traiga `main`.
+Las ramas de funcionalidad se crean **después** de fusionar la Fase 0, para que todos partan con el mismo código base.
 
 ---
 
@@ -231,6 +243,7 @@ Mientras el setup no esté fusionado, cada quien puede escribir su código y sus
 | Validación (¿construimos el producto correcto?) | Casos de prueba derivados de las reglas de la sección 2.2 | Cada regla de negocio tiene al menos una prueba trazable (matriz requisito → prueba). |
 | Análisis estático de estilo | ESLint | `npm run lint` sin errores. |
 | Análisis estático de calidad | SonarQube (Docker, como en el Laboratorio 1) | Sin bugs ni vulnerabilidades abiertos; code smells revisados; calificación A. |
+| Pruebas de endpoints | Postman | Una colección por módulo con casos correctos y de error, y verificaciones en la pestaña Tests. Ver [`docs/guias/postman.md`](../guias/postman.md). |
 | Técnicas de diseño de casos | Partición de equivalencia, valores límite, tabla de decisión, transición de estados | Cada responsable documenta cuál usó en cada prueba. |
 
 ### 7.1 Defectos intencionales
@@ -258,6 +271,7 @@ Cada defecto debe quedar en commits separados (`test:` que falla y luego `fix:`)
 - [ ] Pruebas unitarias con cobertura propia ≥ 70 %.
 - [ ] Dos defectos intencionales documentados, detectados y corregidos.
 - [ ] `npm run lint` sin errores.
+- [ ] Colección de Postman exportada en `docs/postman/`.
 - [ ] Análisis de SonarQube del módulo sin bugs ni vulnerabilidades.
 - [ ] PR aprobado por el revisor asignado y fusionado en `main`.
 
@@ -267,7 +281,19 @@ Cada defecto debe quedar en commits separados (`test:` que falla y luego `fix:`)
 
 | Fase | Contenido | Responsables |
 |---|---|---|
-| 0 | Base del proyecto: Jest, ESLint, SonarQube, CI | Maycol |
+| 0 | Base del proyecto: Express, conexión a Supabase, Jest, ESLint, SonarQube, CI, Postman base | Maycol (hecha) |
 | 1 | Módulos independientes en paralelo (clientes, membresías, accesos, pagos) | Ruben, Andres, Danny, Maycol |
 | 2 | Integración: acceso solo con membresía vigente; reportes de morosos y clientes por vencer | Danny + Andres, Ruben + Maycol |
 | 3 | Calidad y cierre: cobertura global, SonarQube, matriz de trazabilidad, informe | Todos |
+
+---
+
+## 10. Entregables del proyecto
+
+| Entregable | Cómo se cumple | Responsable |
+|---|---|---|
+| Reporte de SonarQube | Análisis inicial y final con calificación A ([guía](../guias/sonarqube.md)) | Maycol, con correcciones de cada quien en sus archivos |
+| Back-end | API REST en Express con 4 módulos conectados a Supabase | Todos |
+| Cobertura ≥ 70 % | `npm run test:cov` (el umbral falla el comando y el CI si baja) | Todos |
+| Pruebas Jest y lint | `npm test` y `npm run lint` en verde | Todos |
+| Pruebas de endpoints con Postman | Una colección por módulo en `docs/postman/` ([guía](../guias/postman.md)) | Todos |
