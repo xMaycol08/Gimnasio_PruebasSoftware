@@ -1,0 +1,36 @@
+---
+title: Modelo de Datos Completo - Control de Membresías de Gimnasio
+---
+erDiagram
+    CLIENTE {
+        int id_cliente PK
+        string nombre
+        string cedula UK
+        string telefono
+        string email UK
+    }
+    MEMBRESIA {
+        int id_membresia PK
+        string nombre UK
+        decimal precio
+        int duracion_dias
+    }
+    PAGO {
+        int id_pago PK
+        int id_cliente FK
+        int id_membresia FK
+        date fecha_pago
+        date fecha_vencimiento
+        decimal monto
+        string estado
+    }
+    ACCESO {
+        int id_acceso PK
+        int id_cliente FK
+        datetime fecha_hora_entrada
+        datetime fecha_hora_salida
+    }
+
+    CLIENTE ||--o{ PAGO : realiza
+    MEMBRESIA ||--o{ PAGO : "se adquiere mediante"
+    CLIENTE ||--o{ ACCESO : registra
