@@ -10,7 +10,7 @@ Proyecto corto de la asignatura **Pruebas de Software** (Carrera de Software, Un
 |---|---|
 | Maycol Celi | Pagos (`PAGO`) y configuración de calidad (Jest, ESLint, SonarQube, CI) |
 | Rubén Alejandro | Clientes (`CLIENTE`) |
-| Andres Espinoza | Membresías (`MEMBRESIA`) |
+| Andres Espinosa | Membresías (`MEMBRESIA`) |
 | Danny Tiupul | Accesos (`ACCESO`) |
 
 El detalle del reparto está en [`docs/planificacion/asignacion-y-arquitectura.md`](docs/planificacion/asignacion-y-arquitectura.md).
