@@ -17,15 +17,40 @@ npm install
 ```
 
 ## 3. Archivo `.env` (conexión a Supabase)
-1. Copia `.env.example` y renómbralo `.env`.
-2. Reemplaza `DATABASE_URL` por la cadena real que te pasa Maycol **por un medio privado** (WhatsApp, Teams…).
-3. **Nunca** subas el `.env` a Git: ya está en `.gitignore`. Comprueba con `git status` que no aparezca.
 
-Para comprobar que todo conecta:
-```
-npm run db:check
-```
-Debe decir `Conexión correcta` y listar las 4 tablas (`cliente, membresia, pago, acceso`).
+El `.env` guarda datos secretos y **no se sube a Git** (está en `.gitignore`). Se arma así:
+
+**Quien administra Supabase (Maycol), para obtener la cadena de conexión:**
+1. Abre el proyecto en Supabase y pulsa **Connect** (arriba).
+2. En la ventana, elige la pestaña **Direct Connection** (no "Framework": esa es para Next.js y no la usamos).
+3. Elige **Session pooler** (puerto 5432). Se usa el pooler porque la conexión directa solo funciona con IPv6 y la mayoría de redes caseras y universitarias son IPv4.
+4. Copia la cadena, que se ve así: `postgresql://postgres.<REF>:[YOUR-PASSWORD]@<host>.pooler.supabase.com:5432/postgres`
+5. Reemplaza `[YOUR-PASSWORD]` (incluidos los corchetes) por la contraseña de la base de datos.
+   - Si no la recuerdas: *Project Settings → Database → Reset database password*.
+   - Si la contraseña tiene símbolos, hay que escribirlos codificados en la URL: `@` → `%40`, `#` → `%23`, `/` → `%2F`, `:` → `%3A`, `?` → `%3F`, `%` → `%25`. Lo más fácil es usar una contraseña solo con letras y números.
+
+**Todos (cada quien en su computadora):**
+1. Copia `.env.example` y renómbralo `.env` (en Windows: `copy .env.example .env`).
+2. Pega la cadena real en `DATABASE_URL` (Maycol la comparte por un medio privado, nunca por GitHub).
+3. Deja el archivo así, sin comillas ni espacios:
+   ```
+   PORT=3000
+   NODE_ENV=development
+   DATABASE_URL=postgresql://postgres.abcdefghijklmnop:MiClave123@aws-1-us-east-1.pooler.supabase.com:5432/postgres
+   ```
+4. Comprueba con `git status` que `.env` **no** aparece en la lista.
+5. Verifica la conexión:
+   ```
+   npm run db:check
+   ```
+   Debe decir `Conexión correcta` y listar `cliente, membresia, pago, acceso`.
+
+| Mensaje de `db:check` | Causa probable |
+|---|---|
+| `Falta la variable de entorno DATABASE_URL` | El archivo se llama mal (debe ser exactamente `.env`) o está en otra carpeta |
+| `password authentication failed` | Contraseña incorrecta o con símbolos sin codificar |
+| `getaddrinfo ENOTFOUND` / `ETIMEDOUT` | Host mal copiado, o se usó la conexión directa en lugar del Session pooler |
+| `Faltan tablas: ...` | Falta ejecutar `database/schema.sql` en Supabase (*SQL Editor*) |
 
 ## 4. Comandos del proyecto
 

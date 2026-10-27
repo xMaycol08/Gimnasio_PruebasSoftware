@@ -4,6 +4,8 @@ Sistema de Gestión de Gimnasio / Control de Membresías.
 
 Proyecto corto de la asignatura **Pruebas de Software** (Carrera de Software, Universidad de las Fuerzas Armadas ESPE, periodo Septiembre 2026 – Febrero 2027). Docente: Ing. Luis Castillo, Mgtr.
 
+**Alcance:** solo back-end (API REST). No hay frontend: el código se prueba con Jest (cobertura ≥ 70 %), ESLint, SonarQube y Postman.
+
 ## Equipo
 
 | Integrante | Responsabilidad principal |
@@ -26,7 +28,7 @@ El sistema se escogió porque tiene fechas, pagos y estados (activo/vencido), lo
 | Entregable | Cómo se cumple |
 |---|---|
 | Reporte de SonarQube | [`docs/guias/sonarqube.md`](docs/guias/sonarqube.md) |
-| Back-end | API REST con Node.js y Express, conectada a Supabase |
+| Back-end | API REST con Node.js y Express, conectada a Supabase (sin frontend) |
 | Cobertura de código ≥ 70 % | `npm run test:cov` (falla si baja del 70 %) |
 | Pruebas Jest y lint | `npm test` y `npm run lint` |
 | Pruebas de endpoints con Postman | [`docs/guias/postman.md`](docs/guias/postman.md) y colecciones en `docs/postman/` |
@@ -68,7 +70,8 @@ El `.env` con la cadena de conexión real **no se sube a Git**: Maycol lo compar
 
 **Motor: PostgreSQL (SQL), alojado en Supabase.** El modelo es relacional (claves foráneas, restricciones `CHECK` y `UNIQUE`) y las restricciones del esquema sirven para probar errores de integridad.
 
-- El esquema está en [`database/schema.sql`](database/schema.sql) y ya está creado en Supabase.
+- El esquema está en [`database/schema.sql`](database/schema.sql) y se ejecuta una vez en el *SQL Editor* de Supabase.
+- [`database/seguridad-rls.sql`](database/seguridad-rls.sql) activa RLS en las 4 tablas (también una sola vez).
 - Los diagramas están en [`docs/modelado/`](docs/modelado/) (conceptual, lógico, físico y completo).
 - Todos usan la misma base compartida con la cadena `DATABASE_URL` de su `.env` (ver `.env.example`).
 - **Las pruebas con Jest no necesitan base de datos:** el repositorio se reemplaza por un stub, así cada integrante trabaja sin depender de los demás.
