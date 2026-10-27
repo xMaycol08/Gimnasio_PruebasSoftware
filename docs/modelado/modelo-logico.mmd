@@ -1,0 +1,38 @@
+---
+title: Modelo Lógico - Control de Membresías de Gimnasio
+---
+%% Nivel lógico: atributos, claves (PK/FK/UK) y cardinalidades.
+%% Tipos genéricos, independientes del motor de base de datos.
+erDiagram
+    CLIENTE {
+        entero id_cliente PK
+        texto nombre
+        texto cedula UK
+        texto telefono
+        texto email UK
+    }
+    MEMBRESIA {
+        entero id_membresia PK
+        texto nombre UK "semanal, mensual, anual"
+        decimal precio
+        entero duracion_dias
+    }
+    PAGO {
+        entero id_pago PK
+        entero id_cliente FK
+        entero id_membresia FK
+        fecha fecha_pago
+        fecha fecha_vencimiento
+        decimal monto
+        texto estado "PAGADO, PENDIENTE, ANULADO"
+    }
+    ACCESO {
+        entero id_acceso PK
+        entero id_cliente FK
+        fechahora fecha_hora_entrada
+        fechahora fecha_hora_salida "nula si sigue dentro"
+    }
+
+    CLIENTE ||--o{ PAGO : "realiza (1 : 0..N)"
+    MEMBRESIA ||--o{ PAGO : "se adquiere (1 : 0..N)"
+    CLIENTE ||--o{ ACCESO : "registra (1 : 0..N)"

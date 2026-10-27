@@ -1,0 +1,8 @@
+---
+title: Modelo Conceptual - Control de Membresías de Gimnasio
+---
+%% Nivel conceptual: solo entidades y relaciones, sin atributos ni tipos.
+erDiagram
+    CLIENTE ||--o{ PAGO : "realiza"
+    MEMBRESIA ||--o{ PAGO : "se adquiere mediante"
+    CLIENTE ||--o{ ACCESO : "registra"

@@ -1,0 +1,38 @@
+---
+title: Modelo Físico (PostgreSQL) - Control de Membresías de Gimnasio
+---
+%% Nivel físico: tipos del motor, restricciones y nulabilidad.
+%% El DDL ejecutable está en database/schema.sql
+erDiagram
+    CLIENTE {
+        SERIAL id_cliente PK "NOT NULL"
+        VARCHAR_100 nombre "NOT NULL"
+        VARCHAR_10 cedula UK "NOT NULL, CHECK longitud 10"
+        VARCHAR_15 telefono
+        VARCHAR_120 email UK "NOT NULL"
+    }
+    MEMBRESIA {
+        SERIAL id_membresia PK "NOT NULL"
+        VARCHAR_30 nombre UK "NOT NULL"
+        NUMERIC_8_2 precio "NOT NULL, CHECK > 0"
+        INTEGER duracion_dias "NOT NULL, CHECK > 0"
+    }
+    PAGO {
+        SERIAL id_pago PK "NOT NULL"
+        INTEGER id_cliente FK "NOT NULL, ON DELETE RESTRICT"
+        INTEGER id_membresia FK "NOT NULL, ON DELETE RESTRICT"
+        DATE fecha_pago "NOT NULL"
+        DATE fecha_vencimiento "NOT NULL, CHECK >= fecha_pago"
+        NUMERIC_8_2 monto "NOT NULL, CHECK > 0"
+        VARCHAR_10 estado "NOT NULL, CHECK IN (PAGADO, PENDIENTE, ANULADO)"
+    }
+    ACCESO {
+        SERIAL id_acceso PK "NOT NULL"
+        INTEGER id_cliente FK "NOT NULL, ON DELETE RESTRICT"
+        TIMESTAMP fecha_hora_entrada "NOT NULL"
+        TIMESTAMP fecha_hora_salida "NULL, CHECK >= entrada"
+    }
+
+    CLIENTE ||--o{ PAGO : "id_cliente"
+    MEMBRESIA ||--o{ PAGO : "id_membresia"
+    CLIENTE ||--o{ ACCESO : "id_cliente"
