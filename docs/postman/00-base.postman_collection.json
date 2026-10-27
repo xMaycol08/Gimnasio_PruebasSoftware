@@ -1,0 +1,41 @@
+{
+  "info": {
+    "name": "00 - Base (health)",
+    "description": "Comprobación del servidor y de la conexión a Supabase.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET /health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('estado es ok', () => pm.expect(pm.response.json().estado).to.eql('ok'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /health/db",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health/db" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Base conectada', () => pm.expect(pm.response.json().baseDeDatos).to.eql('conectada'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

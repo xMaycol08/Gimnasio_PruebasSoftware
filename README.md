@@ -21,24 +21,57 @@ El gimnasio vende **membresías** (semanal, mensual, anual) a sus **clientes**. 
 
 El sistema se escogió porque tiene fechas, pagos y estados (activo/vencido), lo que permite diseñar muchas pruebas: valores límite, particiones de equivalencia, tablas de decisión y transiciones de estado. Parte del ejercicio es provocar errores intencionales y detectarlos con pruebas.
 
+## Entregables
+
+| Entregable | Cómo se cumple |
+|---|---|
+| Reporte de SonarQube | [`docs/guias/sonarqube.md`](docs/guias/sonarqube.md) |
+| Back-end | API REST con Node.js y Express, conectada a Supabase |
+| Cobertura de código ≥ 70 % | `npm run test:cov` (falla si baja del 70 %) |
+| Pruebas Jest y lint | `npm test` y `npm run lint` |
+| Pruebas de endpoints con Postman | [`docs/guias/postman.md`](docs/guias/postman.md) y colecciones en `docs/postman/` |
+
 ## Tecnologías
 
 | Uso | Herramienta |
 |---|---|
-| Lenguaje | JavaScript (Node.js) |
-| Pruebas y cobertura (mínimo 70 %) | Jest |
+| Lenguaje y servidor | JavaScript (Node.js 20+) con Express |
+| Base de datos | PostgreSQL en Supabase |
+| Pruebas y cobertura (mínimo 70 %) | Jest y Supertest |
 | Análisis estático de estilo | ESLint |
 | Análisis estático de calidad | SonarQube (Docker) |
+| Pruebas de endpoints | Postman |
 | Control de versiones | Git y GitHub, con ramas de funcionalidad y Pull Requests |
+
+## Inicio rápido
+
+```
+git clone https://github.com/xMaycol08/Gimnasio_PruebasSoftware.git
+cd Gimnasio_PruebasSoftware
+npm install
+cp .env.example .env     # en Windows: copy .env.example .env
+npm run db:check         # comprueba la conexión a Supabase y las 4 tablas
+npm run dev              # API en http://localhost:3000  (prueba: /health)
+```
+
+El `.env` con la cadena de conexión real **no se sube a Git**: Maycol lo comparte por un medio privado. La guía completa está en [`docs/guias/00-inicio-rapido.md`](docs/guias/00-inicio-rapido.md).
+
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Levanta la API con reinicio automático |
+| `npm test` | Pruebas Jest |
+| `npm run test:cov` | Pruebas y cobertura (umbral 70 %) |
+| `npm run lint` | ESLint |
+| `npm run db:check` | Verifica la conexión a la base |
 
 ## Base de datos
 
-**Motor elegido: PostgreSQL (SQL).** El modelo es relacional (claves foráneas, restricciones `CHECK` y `UNIQUE`) y las restricciones del esquema son útiles para probar errores de integridad. Una base documental como MongoDB obligaría a reimplementar esas reglas en código.
+**Motor: PostgreSQL (SQL), alojado en Supabase.** El modelo es relacional (claves foráneas, restricciones `CHECK` y `UNIQUE`) y las restricciones del esquema sirven para probar errores de integridad.
 
-- El esquema está en [`database/schema.sql`](database/schema.sql).
+- El esquema está en [`database/schema.sql`](database/schema.sql) y ya está creado en Supabase.
 - Los diagramas están en [`docs/modelado/`](docs/modelado/) (conceptual, lógico, físico y completo).
-- **Las pruebas con Jest no necesitan base de datos:** los repositorios son en memoria, así cada integrante trabaja sin depender de los demás.
-- **Base compartida (opcional) para integración:** una instancia PostgreSQL gratuita en la nube (por ejemplo Neon o Supabase) con una sola cadena de conexión para el equipo. Esa cadena va en una variable de entorno o archivo `.env` (nunca en el repositorio). Si prefieren trabajar localmente, se puede usar PostgreSQL con Docker.
+- Todos usan la misma base compartida con la cadena `DATABASE_URL` de su `.env` (ver `.env.example`).
+- **Las pruebas con Jest no necesitan base de datos:** el repositorio se reemplaza por un stub, así cada integrante trabaja sin depender de los demás.
 
 ## Documentación
 
@@ -47,13 +80,16 @@ El sistema se escogió porque tiene fechas, pagos y estados (activo/vencido), lo
 | [`docs/modelado/`](docs/modelado/) | Modelos conceptual, lógico y físico (`.mmd`, Mermaid) |
 | [`docs/planificacion/reparto-trabajo.mmd`](docs/planificacion/reparto-trabajo.mmd) | Reparto por fases y flujo de Pull Requests |
 | [`docs/planificacion/asignacion-y-arquitectura.md`](docs/planificacion/asignacion-y-arquitectura.md) | Funcionamiento, arquitectura, contratos y reglas anti-conflicto |
+| [`docs/guias/`](docs/guias/) | Inicio rápido, plantilla de módulo, Postman y SonarQube |
+| [`docs/tareas/`](docs/tareas/) | Guía detallada por integrante: endpoints, reglas, pruebas y checklist |
 
 ## Flujo de trabajo
 
 1. `main` está protegido: no se hace push directo.
-2. Cada funcionalidad se desarrolla en una rama `feature/<funcionalidad>` creada desde `main`.
-3. Se abre un Pull Request, lo revisa otro integrante y se fusiona con el CI en verde (ESLint, Jest ≥ 70 % y SonarQube).
+2. Cada funcionalidad se desarrolla en su rama de funcionalidad (`feature/clientes`, `feature/membresias`, `feature/pagos`, `feature/accesos`), creada desde `main`.
+3. Se abre un Pull Request, lo revisa otro integrante y se fusiona con **Squash and merge** y el CI en verde (ESLint y Jest ≥ 70 %).
 
 ## Estado
 
-Fase actual: modelado de datos y planificación. El código de la aplicación comienza con la configuración de calidad (`feature/setup-calidad`).
+- Fase 0 (base del proyecto): hecha.
+- Fase 1 (módulos en paralelo): ver la guía de cada integrante en [`docs/tareas/`](docs/tareas/).
