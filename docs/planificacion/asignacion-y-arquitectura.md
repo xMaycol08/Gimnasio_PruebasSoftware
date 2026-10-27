@@ -8,6 +8,8 @@
 
 ---
 
+> **Alcance:** solo back-end (API REST). No existe frontend; la calidad se demuestra con Jest, ESLint, SonarQube y Postman.
+
 ## 1. Objetivo del documento
 
 Este documento define, de forma única y vinculante para el equipo:
