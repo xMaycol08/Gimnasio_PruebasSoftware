@@ -1,0 +1,829 @@
+{
+  "info": {
+    "name": "Pagos",
+    "description": "Pruebas de los endpoints de /api/pagos.\n\nANTES de ejecutarla: la API debe estar corriendo (npm run dev) y deben existir en la base un cliente y una membresía. Ajusta las variables de la colección idCliente, idMembresia y precio (monto exacto de esa membresía). Se ejecuta completa con Run collection, en orden.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "idCliente",
+      "value": "1"
+    },
+    {
+      "key": "idMembresia",
+      "value": "1"
+    },
+    {
+      "key": "precio",
+      "value": "30"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Registrar pago correcto (201)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Fecha de pago aleatoria para poder repetir la colección sin chocar con pagos duplicados",
+              "const dia = new Date(Date.UTC(2020, 0, 1) + Math.floor(Math.random() * 3650) * 86400000);",
+              "pm.collectionVariables.set('fechaPago', dia.toISOString().slice(0, 10));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+              "const pago = pm.response.json();",
+              "pm.test('Estado PAGADO por defecto', () => pm.expect(pago.estado).to.eql('PAGADO'));",
+              "pm.test('Calcula el vencimiento', () => pm.expect(pago.fecha_vencimiento > pago.fecha_pago).to.be.true);",
+              "pm.collectionVariables.set('idPago', pago.id_pago);",
+              "pm.collectionVariables.set('fechaVencimiento', pago.fecha_vencimiento);",
+              "const siguiente = new Date(pago.fecha_vencimiento + 'T00:00:00Z');",
+              "siguiente.setUTCDate(siguiente.getUTCDate() + 1);",
+              "pm.collectionVariables.set('diaSiguiente', siguiente.toISOString().slice(0, 10));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}},\n  \"id_membresia\": {{idMembresia}},\n  \"fecha_pago\": \"{{fechaPago}}\",\n  \"monto\": {{precio}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "2. Pago duplicado (409)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 409', () => pm.response.to.have.status(409));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}},\n  \"id_membresia\": {{idMembresia}},\n  \"fecha_pago\": \"{{fechaPago}}\",\n  \"monto\": {{precio}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "3. Monto distinto del precio (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}},\n  \"id_membresia\": {{idMembresia}},\n  \"fecha_pago\": \"2019-01-01\",\n  \"monto\": 0.5\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "4. Cliente inexistente (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": 999999,\n  \"id_membresia\": {{idMembresia}},\n  \"fecha_pago\": \"2019-01-01\",\n  \"monto\": {{precio}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "5. Membresía inexistente (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}},\n  \"id_membresia\": 999999,\n  \"fecha_pago\": \"2019-01-01\",\n  \"monto\": {{precio}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "6. Fecha inválida (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}},\n  \"id_membresia\": {{idMembresia}},\n  \"fecha_pago\": \"2026-02-30\",\n  \"monto\": {{precio}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "7. Estado inválido al registrar (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}},\n  \"id_membresia\": {{idMembresia}},\n  \"fecha_pago\": \"{{fechaPago}}\",\n  \"monto\": {{precio}},\n  \"estado\": \"OTRO\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "8. Consultar pago por id (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Es el pago creado', () => pm.expect(pm.response.json().id_pago).to.eql(Number(pm.collectionVariables.get('idPago'))));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/{{idPago}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "{{idPago}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "9. Pago inexistente (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "999999"
+          ]
+        }
+      }
+    },
+    {
+      "name": "10. Listar pagos de un cliente (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Es una lista con al menos un pago', () => pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos?id_cliente={{idCliente}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ],
+          "query": [
+            {
+              "key": "id_cliente",
+              "value": "{{idCliente}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "11. Listar con id_cliente inválido (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos?id_cliente=abc",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ],
+          "query": [
+            {
+              "key": "id_cliente",
+              "value": "abc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "12. Vigencia el día del pago (vigente)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Vigente', () => pm.expect(pm.response.json().vigente).to.be.true);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/vigencia/{{idCliente}}?fecha={{fechaPago}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "vigencia",
+            "{{idCliente}}"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "{{fechaPago}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "13. Vigencia el día del vencimiento (límite: sigue vigente)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Vigente el último día', () => pm.expect(pm.response.json().vigente).to.be.true);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/vigencia/{{idCliente}}?fecha={{fechaVencimiento}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "vigencia",
+            "{{idCliente}}"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "{{fechaVencimiento}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "14. Vigencia el día siguiente al vencimiento (no vigente)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('No vigente', () => pm.expect(pm.response.json().vigente).to.be.false);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/vigencia/{{idCliente}}?fecha={{diaSiguiente}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "vigencia",
+            "{{idCliente}}"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "{{diaSiguiente}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "15. Vigencia con fecha inválida (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/vigencia/{{idCliente}}?fecha=mañana",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "vigencia",
+            "{{idCliente}}"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "mañana"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "16. Vigencia de cliente inexistente (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/vigencia/999999?fecha={{fechaPago}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "vigencia",
+            "999999"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "{{fechaPago}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "17. Estado inválido (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/{{idPago}}/estado",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "{{idPago}}",
+            "estado"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"XYZ\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "18. Anular el pago (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Quedó ANULADO', () => pm.expect(pm.response.json().estado).to.eql('ANULADO'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/{{idPago}}/estado",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "{{idPago}}",
+            "estado"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"ANULADO\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "19. Un pago ANULADO no cambia más (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/{{idPago}}/estado",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "{{idPago}}",
+            "estado"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"PAGADO\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "20. Tras anular, ya no hay vigencia (no vigente)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('No vigente', () => pm.expect(pm.response.json().vigente).to.be.false);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/vigencia/{{idCliente}}?fecha={{fechaPago}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "vigencia",
+            "{{idCliente}}"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "{{fechaPago}}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
