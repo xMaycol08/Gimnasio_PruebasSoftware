@@ -14,7 +14,7 @@ Los 4 módulos (clientes, membresías, pagos y accesos) trabajan juntos:
 - **Jest:** `tests/integracion/flujo.integracion.test.js` levanta la API con los módulos reales y el esquema real (`database/schema.sql`) sobre un PostgreSQL simulado en memoria (`pg-mem`). Ejercita el SQL de verdad sin necesitar Supabase ni el `.env`.
 - **Postman:** `docs/postman/05-flujo-completo.postman_collection.json` recorre membresía → cliente → entrada sin pago (422) → pago → vigencia → entrada y salida → reportes. Genera datos únicos en cada ejecución, así que se puede repetir.
 
-Ambas solo verifican comportamientos que no dependen de los defectos intencionales.
+Ambas solo verifican comportamientos que no dependen de los defectos intencionales. La prueba de Jest no entra en `npm run test:cov` (ver `docs/tareas/cobertura.md`); se ejecuta con `npm run test:completo`.
 
 ## 2. Reportes (`/api/reportes`)
 
