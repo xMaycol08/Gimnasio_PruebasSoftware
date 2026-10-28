@@ -48,3 +48,8 @@ En Postman: colección → **Run** → ejecuta todas las peticiones. Toma una ca
 
 ## 5. Datos de prueba entre módulos
 Los pagos y accesos necesitan un cliente y una membresía existentes. Para probar en conjunto, primero crea un cliente (`POST /api/clientes`) y una membresía (`POST /api/membresias`) y usa sus ids. Mientras el módulo de otro compañero no esté en `main`, prueba con filas insertadas desde el SQL Editor de Supabase.
+
+## 6. Colecciones de la Fase 2
+Además de la colección de cada módulo hay dos colecciones compartidas en `docs/postman/`:
+- `05-flujo-completo.postman_collection.json`: recorre los 4 módulos y los reportes en orden; crea datos únicos en cada ejecución.
+- `reportes.postman_collection.json`: casos correctos y de error de los reportes.
