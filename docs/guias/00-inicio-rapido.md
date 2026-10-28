@@ -86,7 +86,7 @@ git add .
 git commit -m "feat: describe lo que hiciste"
 git push origin feature/clientes
 ```
-Luego abre un Pull Request hacia `main` en GitHub. Lo revisa el compañero indicado en la tarea y se acepta con **Squash and merge**.
+Luego abre un Pull Request hacia `main` en GitHub. Lo revisa el compañero indicado en la tarea (comenta o aprueba) y **Maycol lo fusiona** con **Squash and merge**. No hagas el merge tú mismo.
 
 Para traer a tu rama lo que otros ya fusionaron en `main`:
 ```
