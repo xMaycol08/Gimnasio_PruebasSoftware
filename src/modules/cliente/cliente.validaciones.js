@@ -37,7 +37,7 @@ function validarNombre(nombre) {
 }
 
 function validarCedula(cedula) {
-  if (typeof cedula !== 'string' || !/^\d{10}$/.test(cedula)) {
+  if (typeof cedula !== 'string' || !/^\d{9,11}$/.test(cedula)) {
     throw new ErrorValidacion('La cédula debe tener 10 dígitos');
   }
 

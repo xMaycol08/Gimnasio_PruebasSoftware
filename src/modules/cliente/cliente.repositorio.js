@@ -35,7 +35,7 @@ async function buscarPorEmail(email, excluirId = null) {
   const resultado = await db.query(
     `SELECT id_cliente, nombre, cedula, telefono, email
      FROM cliente
-     WHERE LOWER(email) = LOWER($1)
+     WHERE email = $1
      AND ($2::integer IS NULL OR id_cliente <> $2)
      LIMIT 1`,
     [email, excluirId]
