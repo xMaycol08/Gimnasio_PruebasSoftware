@@ -20,7 +20,9 @@ const crearRouter = (servicio) => {
   router.get('/:id', asyncHandler(async (req, res) => {
     const id = validarId(req.params.id);
     const membresia = await servicio.obtenerPorId(id);
-    if (!membresia) throw new ErrorNoEncontrado(`No existe la membresía ${id}`);
+    if (!membresia) {
+      throw new ErrorNoEncontrado(`No existe la membresía ${id}`);
+    }
     res.json(membresia);
   }));
   

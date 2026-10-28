@@ -7,7 +7,9 @@ const crearServicio = ({ repositorio = require('./membresia.repositorio') } = {}
     try {
       return await repositorio.crear(datosValidos);
     } catch (error) {
-      if (error.code === '23505') throw new ErrorConflicto('El nombre de la membresía ya existe');
+      if (error.code === '23505') {
+        throw new ErrorConflicto('El nombre de la membresía ya existe');
+      }
       throw error;
     }
   },

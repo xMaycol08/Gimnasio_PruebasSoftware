@@ -1,5 +1,5 @@
 const crearServicio = require('../../src/modules/membresia/membresia.servicio');
-const { ErrorNoEncontrado, ErrorConflicto } = require('../../src/shared/errores');
+const { ErrorConflicto } = require('../../src/shared/errores');
 
 describe('Membresia Servicio', () => {
   let repositorioFalso;
