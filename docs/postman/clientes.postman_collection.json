@@ -1,0 +1,294 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-5e6f-4789-9012-clientes0001",
+    "name": "Clientes - Gimnasio",
+    "description": "Pruebas del módulo CLIENTE: CRUD, validaciones, recursos inexistentes y conflictos de unicidad.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Listar clientes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Devuelve una lista', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Crear cliente (201)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function cedulaValida() {",
+              "  var digitos = [1,7,Math.floor(Math.random()*10),Math.floor(Math.random()*10),Math.floor(Math.random()*10),Math.floor(Math.random()*10),Math.floor(Math.random()*10),Math.floor(Math.random()*10),Math.floor(Math.random()*10)];",
+              "  digitos[2] = 1;",
+              "  var suma = 0;",
+              "  for (var i = 0; i < 9; i++) {",
+              "    var valor = digitos[i] * (i % 2 === 0 ? 2 : 1);",
+              "    if (valor > 9) valor -= 9;",
+              "    suma += valor;",
+              "  }",
+              "  digitos.push((10 - (suma % 10)) % 10);",
+              "  return digitos.join('');",
+              "}",
+              "pm.collectionVariables.set('cedulaNueva', cedulaValida());",
+              "pm.collectionVariables.set('emailNuevo', 'postman.' + Date.now() + '@example.com');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201', function () { pm.response.to.have.status(201); });",
+              "var body = pm.response.json();",
+              "pm.test('Devuelve el id del cliente', function () { pm.expect(body).to.have.property('id_cliente'); });",
+              "pm.collectionVariables.set('idCliente', body.id_cliente);",
+              "pm.collectionVariables.set('cedulaCliente', body.cedula);",
+              "pm.collectionVariables.set('emailCliente', body.email);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"Cliente Postman\",\"cedula\":\"{{cedulaNueva}}\",\"telefono\":\"0991234567\",\"email\":\"{{emailNuevo}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/clientes"
+      }
+    },
+    {
+      "name": "03 - Consultar cliente creado (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes/{{idCliente}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('El id corresponde al cliente creado', function () { pm.expect(String(pm.response.json().id_cliente)).to.eql(String(pm.collectionVariables.get('idCliente'))); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Actualizar cliente (200)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"Cliente Postman Actualizado\",\"cedula\":\"{{cedulaCliente}}\",\"telefono\":\"0987654321\",\"email\":\"{{emailCliente}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/clientes/{{idCliente}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Actualiza el nombre', function () { pm.expect(pm.response.json().nombre).to.eql('Cliente Postman Actualizado'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Crear cliente con datos inválidos (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"Cliente inválido\",\"cedula\":\"1712345678\",\"telefono\":\"123\",\"email\":\"correo-invalido\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/clientes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Consultar cliente inexistente (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes/999999999"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Crear cliente con cédula duplicada (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"Duplicado Postman\",\"cedula\":\"{{cedulaCliente}}\",\"telefono\":\"0991111111\",\"email\":\"duplicado.{{idCliente}}@example.com\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/clientes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 409 por cédula duplicada', function () { pm.response.to.have.status(409); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Eliminar cliente creado (204)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes/{{idCliente}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Eliminar cliente inexistente (404)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes/999999999"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "idCliente",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cedulaCliente",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "emailCliente",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cedulaNueva",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "emailNuevo",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
