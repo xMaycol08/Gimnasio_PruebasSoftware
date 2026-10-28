@@ -62,7 +62,8 @@ El `.env` con la cadena de conexión real **no se sube a Git**: Maycol lo compar
 |---|---|
 | `npm run dev` | Levanta la API con reinicio automático |
 | `npm test` | Pruebas Jest |
-| `npm run test:cov` | Pruebas y cobertura (umbral 70 %) |
+| `npm run test:cov` | Pruebas y cobertura (umbral 70 %; ver [`docs/tareas/cobertura.md`](docs/tareas/cobertura.md)) |
+| `npm run test:completo` | Todas las pruebas, incluidas las de integración y repositorios |
 | `npm run lint` | ESLint |
 | `npm run db:check` | Verifica la conexión a la base |
 

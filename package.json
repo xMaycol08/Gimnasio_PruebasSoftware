@@ -15,7 +15,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "db:check": "node scripts/verificar-conexion.js"
+    "db:check": "node scripts/verificar-conexion.js",
+    "test:completo": "jest --testPathIgnorePatterns=/node_modules/"
   },
   "license": "UNLICENSED",
   "dependencies": {

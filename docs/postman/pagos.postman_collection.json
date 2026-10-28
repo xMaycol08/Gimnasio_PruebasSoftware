@@ -1,24 +1,115 @@
 {
   "info": {
     "name": "Pagos",
-    "description": "Pruebas de los endpoints de /api/pagos.\n\nANTES de ejecutarla: la API debe estar corriendo (npm run dev) y deben existir en la base un cliente y una membresía. Ajusta las variables de la colección idCliente, idMembresia y precio (monto exacto de esa membresía). Se ejecuta completa con Run collection, en orden.",
+    "description": "Pruebas de los endpoints de /api/pagos.\n\nCon la API corriendo (npm run dev). Las dos primeras peticiones crean un cliente y una membresía de prueba únicos, así que no hace falta configurar variables. Se ejecuta completa con Run collection, en orden.\n\nCon los defectos intencionales presentes, las peticiones 13 y 20 fallan a propósito (vigencia el día del vencimiento y vigencia tras anular).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
-    {
-      "key": "idCliente",
-      "value": "1"
-    },
-    {
-      "key": "idMembresia",
-      "value": "1"
-    },
-    {
-      "key": "precio",
-      "value": "30"
-    }
-  ],
+  "variable": [],
   "item": [
+    {
+      "name": "0a. Preparar: crear membresía de prueba (201)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Datos únicos en cada ejecución: así la colección se puede repetir sin choques con la base",
+              "const sufijo = Date.now().toString().slice(-8);",
+              "pm.collectionVariables.set('nombreMembresia', 'plan' + sufijo);",
+              "pm.collectionVariables.set('emailCliente', 'cliente' + sufijo + '@gym.com');",
+              "// Cédula ecuatoriana válida: provincia 17, tercer dígito 1, 6 dígitos al azar y dígito verificador",
+              "const base = '171' + String(Math.floor(Math.random() * 1e6)).padStart(6, '0');",
+              "let suma = 0;",
+              "for (let i = 0; i < 9; i++) { let v = Number(base[i]); if (i % 2 === 0) { v *= 2; if (v > 9) { v -= 9; } } suma += v; }",
+              "pm.collectionVariables.set('cedulaCliente', base + ((10 - (suma % 10)) % 10));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('idMembresia', pm.response.json().id_membresia);",
+              "pm.collectionVariables.set('precio', pm.response.json().precio);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/membresias",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "membresias"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"{{nombreMembresia}}\",\n  \"precio\": 30,\n  \"duracion_dias\": 30\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "0b. Preparar: crear cliente de prueba (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('idCliente', pm.response.json().id_cliente);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/clientes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "clientes"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cliente de pagos\",\n  \"cedula\": \"{{cedulaCliente}}\",\n  \"telefono\": \"0999999999\",\n  \"email\": \"{{emailCliente}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
     {
       "name": "1. Registrar pago correcto (201)",
       "event": [

@@ -59,7 +59,8 @@ El `.env` guarda datos secretos y **no se sube a Git** (está en `.gitignore`). 
 | `npm run dev` | Levanta la API en `http://localhost:3000` y se reinicia al guardar |
 | `npm start` | Levanta la API sin reinicio automático |
 | `npm test` | Ejecuta las pruebas de Jest |
-| `npm run test:cov` | Pruebas + reporte de cobertura (mínimo **70 %**; si baja, el comando falla) |
+| `npm run test:cov` | Pruebas + reporte de cobertura (mínimo **70 %**; ver `docs/tareas/cobertura.md`) |
+| `npm run test:completo` | Todas las pruebas, incluidas integración y repositorios |
 | `npm run lint` | Revisa el código con ESLint |
 | `npm run lint:fix` | Corrige automáticamente lo que ESLint pueda |
 | `npm run db:check` | Verifica la conexión a Supabase y las tablas |
