@@ -82,4 +82,4 @@ Colección `clientes.postman_collection.json` con una petición por endpoint y u
 - [ ] `npm run lint` y `npm run test:cov` sin errores
 - [ ] Colección Postman exportada y subida
 - [ ] Sin problemas altos de SonarQube en tus archivos
-- [ ] PR aprobado por Andres y fusionado con **Squash and merge**
+- [ ] PR revisado y aprobado por Andres; Maycol lo fusiona con **Squash and merge**
