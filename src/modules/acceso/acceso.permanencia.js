@@ -11,7 +11,7 @@ const calcularPermanenciaMinutos = (fechaEntrada, fechaSalida) => {
     throw new RangeError('La fecha de salida no puede ser anterior a la de entrada');
   }
 
-  return Math.floor(diffMs / (1000 * 60));
+  return Math.floor(diffMs / (1000 * 60 * 60));
 };
 
 module.exports = {
