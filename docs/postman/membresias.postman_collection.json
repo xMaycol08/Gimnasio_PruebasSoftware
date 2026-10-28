@@ -1,0 +1,352 @@
+{
+  "info": {
+    "name": "02 - Membresias",
+    "description": "Colección de pruebas para el módulo de Membresías. Crea los datos base (Semanal, Mensual, Anual) y prueba las validaciones de negocio.\n\nLa colección está diseñada para ejecutarse completa usando 'Run collection'. El primer request genera un sufijo aleatorio para evitar conflictos de nombres en ejecuciones repetidas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "idMembresia",
+      "value": ""
+    },
+    {
+      "key": "idMembresiaSemanal",
+      "value": ""
+    },
+    {
+      "key": "sufijo",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. POST /api/membresias (201) - Crear Semanal",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Generamos un sufijo aleatorio para que los nombres sean únicos si corres la colección varias veces",
+              "const rnd = Math.floor(Math.random() * 100000).toString();",
+              "pm.collectionVariables.set('sufijo', rnd);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201 Created', () => pm.response.to.have.status(201));",
+              "pm.test('Devuelve la membresia creada', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('id_membresia');",
+              "  pm.expect(body.nombre).to.include('Semanal');",
+              "  pm.collectionVariables.set('idMembresiaSemanal', body.id_membresia);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Semanal {{sufijo}}\",\n  \"precio\": 15.00,\n  \"duracion_dias\": 7\n}"
+        },
+        "url": "{{baseUrl}}/api/membresias"
+      }
+    },
+    {
+      "name": "2. POST /api/membresias (201) - Crear Mensual",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201 Created', () => pm.response.to.have.status(201));",
+              "pm.test('Guarda el idMembresia principal para el resto de tests', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('id_membresia');",
+              "  pm.collectionVariables.set('idMembresia', body.id_membresia);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Mensual {{sufijo}}\",\n  \"precio\": 30.00,\n  \"duracion_dias\": 30\n}"
+        },
+        "url": "{{baseUrl}}/api/membresias"
+      }
+    },
+    {
+      "name": "3. POST /api/membresias (201) - Crear Anual",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201 Created', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Anual {{sufijo}}\",\n  \"precio\": 300.00,\n  \"duracion_dias\": 365\n}"
+        },
+        "url": "{{baseUrl}}/api/membresias"
+      }
+    },
+    {
+      "name": "4. POST /api/membresias (409) - Nombre duplicado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 409 Conflict', () => pm.response.to.have.status(409));",
+              "pm.test('Contiene mensaje de error', () => {",
+              "  pm.expect(pm.response.json()).to.have.property('error');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Mensual {{sufijo}}\",\n  \"precio\": 30.00,\n  \"duracion_dias\": 30\n}"
+        },
+        "url": "{{baseUrl}}/api/membresias"
+      }
+    },
+    {
+      "name": "5. POST /api/membresias (400) - Precio inválido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400 Bad Request', () => pm.response.to.have.status(400));",
+              "pm.test('Rechaza precio en 0', () => {",
+              "  pm.expect(pm.response.json().error).to.include('precio');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Gratis {{sufijo}}\",\n  \"precio\": 0,\n  \"duracion_dias\": 30\n}"
+        },
+        "url": "{{baseUrl}}/api/membresias"
+      }
+    },
+    {
+      "name": "6. GET /api/membresias (200) - Listar todas",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Devuelve un array', () => {",
+              "  pm.expect(pm.response.json()).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/membresias"
+      }
+    },
+    {
+      "name": "7. GET /api/membresias/:id (200) - Obtener por ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Devuelve la membresia correcta', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.id_membresia).to.eql(Number(pm.collectionVariables.get('idMembresia')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/membresias/{{idMembresia}}"
+      }
+    },
+    {
+      "name": "8. GET /api/membresias/:id (404) - ID inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404 Not Found', () => pm.response.to.have.status(404));",
+              "pm.test('Contiene mensaje de error', () => {",
+              "  pm.expect(pm.response.json()).to.have.property('error');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/membresias/999999"
+      }
+    },
+    {
+      "name": "9. PUT /api/membresias/:id (200) - Actualizar exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Verifica la actualización del precio', () => {",
+              "  const body = pm.response.json();",
+              "  // Dependiendo de si la BD devuelve string numérico o número, parseamos",
+              "  pm.expect(Number(body.precio)).to.eql(35);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Mensual Modificada {{sufijo}}\",\n  \"precio\": 35.00,\n  \"duracion_dias\": 30\n}"
+        },
+        "url": "{{baseUrl}}/api/membresias/{{idMembresia}}"
+      }
+    },
+    {
+      "name": "10. PUT /api/membresias/:id (409) - Actualizar a nombre existente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 409 Conflict', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Anual {{sufijo}}\",\n  \"precio\": 35.00,\n  \"duracion_dias\": 30\n}"
+        },
+        "url": "{{baseUrl}}/api/membresias/{{idMembresia}}"
+      }
+    },
+    {
+      "name": "11. DELETE /api/membresias/:id (204) - Eliminar membresía",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 204 No Content', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/membresias/{{idMembresiaSemanal}}"
+      }
+    },
+    {
+      "name": "12. DELETE /api/membresias/:id (404) - Eliminar inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404 Not Found', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/membresias/999999"
+      }
+    }
+  ]
+}
