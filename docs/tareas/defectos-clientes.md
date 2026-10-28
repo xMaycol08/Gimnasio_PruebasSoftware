@@ -1,28 +1,25 @@
-# Defectos intencionales del módulo Clientes
+# Defectos intencionales: módulo Clientes
 
-## Defecto 1: Longitud incorrecta de cédula
+Ejercicio de la materia: dos defectos introducidos a propósito, con las pruebas que los detectan.
 
-- **Qué ocurre:** el sistema podía aceptar cédulas con una longitud distinta de 10 dígitos.
-- **Dónde:** `src/modules/cliente/cliente.validaciones.js`.
-- **Prueba que lo detecta:** prueba de valores límite para cédulas de 9, 10 y 11 dígitos en `tests/cliente/cliente.validaciones.test.js`.
-- **Commit de prueba:** `29c8860` — `test: detecta cedulas con longitud incorrecta`.
-- **Commit de corrección:** `e05b4dd` — `fix: valida longitud exacta de cedula`.
-- **Resultado:** la prueba detectó el defecto antes de la corrección y pasó después de corregirlo.
+## Defecto 1: cédulas con longitud incorrecta
 
-## Defecto 2: Correos duplicados con distinta capitalización
+| | |
+|---|---|
+| **Dónde** | `src/modules/cliente/cliente.validaciones.js`, función `validarCedula` |
+| **Qué pasa** | Se aceptan cédulas con una longitud distinta de 10 dígitos (por ejemplo, de 11) |
+| **Regla incumplida** | «La cédula debe tener 10 dígitos» (`docs/tareas/ruben-clientes.md`, sección 4) |
+| **Técnica de prueba** | Valores límite: cédulas de 9, 10 y 11 dígitos |
+| **Prueba que lo detecta** | `validarCedula rechaza una cédula con más de 10 dígitos` (`tests/cliente/cliente.validaciones.test.js`) |
+| **Punto a corregir** | La expresión regular debe exigir exactamente 10 dígitos: `/^\d{10}$/` (hoy `/^\d{9,11}$/`) |
 
-- **Qué ocurre:** la consulta podía comparar los correos distinguiendo entre mayúsculas y minúsculas.
-- **Dónde:** `src/modules/cliente/cliente.repositorio.js`.
-- **Prueba que lo detecta:** prueba en `tests/cliente/cliente.repositorio.test.js` que verifica la comparación de correos sin distinguir mayúsculas y minúsculas.
-- **Commit de prueba:** `da51fb1` — `test: detecta correos duplicados por capitalizacion`.
-- **Commit de corrección:** `fe52202` — `fix: compara correos sin distinguir mayusculas`.
-- **Resultado:** la prueba detectó el cambio incorrecto en la consulta y pasó después de restaurar la comparación con `LOWER()`.
+## Defecto 2: correos duplicados con distinta capitalización
 
-## Verificación final
-
-- Pruebas automatizadas: 57 aprobadas en 8 suites.
-- Lint: aprobado.
-- Cobertura global de instrucciones: 89,79 %.
-- Cobertura global de líneas: 89,52 %.
-- Pruebas de API realizadas manualmente en Postman: listar, crear, consultar, actualizar y eliminar clientes; también se verificaron respuestas 400, 404 y 409.
-
+| | |
+|---|---|
+| **Dónde** | `src/modules/cliente/cliente.repositorio.js`, función `buscarPorEmail` |
+| **Qué pasa** | La consulta compara el correo distinguiendo mayúsculas y minúsculas |
+| **Regla incumplida** | «No pueden existir dos clientes con el mismo email (sin distinguir mayúsculas)» |
+| **Técnica de prueba** | Partición de equivalencia de correos: igual, igual con otra capitalización, distinto |
+| **Prueba que lo detecta** | `busca correos sin distinguir mayúsculas y minúsculas` (`tests/cliente/cliente.repositorio.test.js`) |
+| **Punto a corregir** | La condición debe ser `WHERE LOWER(email) = LOWER($1)` (hoy `WHERE email = $1`) |
