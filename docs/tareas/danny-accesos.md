@@ -78,4 +78,5 @@ Colección `accesos.postman_collection.json`. Para probar el flujo completo nece
 - [x] `npm run lint` y `npm run test:cov` sin errores
 - [x] Colección Postman exportada y subida
 - [x] Sin problemas altos de SonarQube en tus archivos
-- [ ] PR aprobado por Maycol y fusionado con **Squash and merge**
+- [ ] PR revisado y aprobado por Maycol; Maycol lo fusiona con **Squash and merge**
+

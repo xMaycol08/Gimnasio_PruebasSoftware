@@ -11,48 +11,10 @@ const {
 } = require('./acceso.validaciones');
 const { calcularPermanenciaMinutos } = require('./acceso.permanencia');
 
-const obtenerModuloClienteDefault = () => {
-  try {
-    return require('../cliente');
-  } catch {
-    return {
-      clienteExiste: async (idCliente) => {
-        const db = require('../../config/db');
-        const { rows } = await db.query(
-          'SELECT 1 FROM cliente WHERE id_cliente = $1',
-          [idCliente]
-        );
-        return rows.length > 0;
-      },
-    };
-  }
-};
-
-const obtenerModuloPagoDefault = () => {
-  try {
-    return require('../pago');
-  } catch {
-    return {
-      tieneMembresiaVigente: async (idCliente, fecha) => {
-        const db = require('../../config/db');
-        const { rows } = await db.query(
-          `SELECT 1 FROM pago
-           WHERE id_cliente = $1
-             AND estado = 'PAGADO'
-             AND fecha_vencimiento >= $2
-           LIMIT 1`,
-          [idCliente, fecha]
-        );
-        return rows.length > 0;
-      },
-    };
-  }
-};
-
 const crearServicio = ({
   repositorio = require('./acceso.repositorio'),
-  obtenerClientes = obtenerModuloClienteDefault,
-  obtenerPagos = obtenerModuloPagoDefault,
+  obtenerClientes = () => require('../cliente'),
+  obtenerPagos = () => require('../pago'),
 } = {}) => ({
   async registrarEntrada(idClienteRaw, fechaHoraRaw) {
     const idCliente = validarIdCliente(idClienteRaw);

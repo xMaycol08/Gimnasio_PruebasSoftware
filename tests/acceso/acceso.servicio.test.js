@@ -1,3 +1,19 @@
+jest.mock(
+  '../../src/modules/cliente',
+  () => ({
+    clienteExiste: jest.fn().mockResolvedValue(true),
+  }),
+  { virtual: true }
+);
+
+jest.mock(
+  '../../src/modules/pago',
+  () => ({
+    tieneMembresiaVigente: jest.fn().mockResolvedValue(true),
+  }),
+  { virtual: true }
+);
+
 const crearServicio = require('../../src/modules/acceso/acceso.servicio');
 const { ErrorValidacion } = require('../../src/shared/errores');
 
@@ -231,18 +247,7 @@ describe('acceso.servicio (reglas de negocio y transiciones)', () => {
   });
 
   describe('Carga perezosa con resolución por defecto', () => {
-    test('los proveedores por defecto consultan la base de datos si los otros módulos no existen aún', async () => {
-      const db = require('../../src/config/db');
-      const spyDbQuery = jest.spyOn(db, 'query').mockImplementation(async (sql, params) => {
-        if (sql.includes('FROM cliente')) {
-          return { rows: params[0] === 77 ? [{ '1': 1 }] : [] };
-        }
-        if (sql.includes('FROM pago')) {
-          return { rows: params[0] === 77 ? [{ '1': 1 }] : [] };
-        }
-        return { rows: [] };
-      });
-
+    test('por defecto carga los módulos Cliente y Pago de forma perezosa', async () => {
       const servicioConDefaults = crearServicio({
         repositorio: repositorioMock,
       });
@@ -255,8 +260,6 @@ describe('acceso.servicio (reglas de negocio y transiciones)', () => {
 
       const acceso = await servicioConDefaults.registrarEntrada(77, '2026-03-01T10:00:00Z');
       expect(acceso.id_acceso).toBe(50);
-
-      spyDbQuery.mockRestore();
     });
   });
 });
