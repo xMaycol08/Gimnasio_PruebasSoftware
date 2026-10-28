@@ -1,6 +1,9 @@
 
 const repositorioPredeterminado = require('./cliente.repositorio');
-const { validarDatosCliente } = require('./cliente.validaciones');
+const {
+  validarId,
+  validarDatosCliente,
+} = require('./cliente.validaciones');
 const {
   ErrorNoEncontrado,
   ErrorConflicto,
@@ -12,6 +15,8 @@ function crearServicio(repositorio = repositorioPredeterminado) {
   }
 
   async function obtenerPorId(idCliente) {
+    idCliente = validarId(idCliente);
+
     const cliente = await repositorio.obtenerPorId(idCliente);
 
     if (!cliente) {
@@ -44,6 +49,8 @@ function crearServicio(repositorio = repositorioPredeterminado) {
   }
 
   async function actualizar(idCliente, datos) {
+    idCliente = validarId(idCliente);
+
     const clienteExistente = await repositorio.obtenerPorId(idCliente);
 
     if (!clienteExistente) {
@@ -74,6 +81,8 @@ function crearServicio(repositorio = repositorioPredeterminado) {
   }
 
   async function eliminar(idCliente) {
+    idCliente = validarId(idCliente);
+
     const clienteExistente = await repositorio.obtenerPorId(idCliente);
 
     if (!clienteExistente) {

@@ -1,6 +1,27 @@
 
 const { ErrorValidacion } = require('../../shared/errores');
 
+function validarId(id) {
+  const idTexto = String(id);
+
+  if (
+    id === null ||
+    id === undefined ||
+    idTexto.trim() === '' ||
+    !/^[1-9]\d*$/.test(idTexto)
+  ) {
+    throw new ErrorValidacion('El id debe ser un entero positivo');
+  }
+
+  const idNumero = Number(idTexto);
+
+  if (!Number.isSafeInteger(idNumero)) {
+    throw new ErrorValidacion('El id debe ser un entero positivo');
+  }
+
+  return idNumero;
+}
+
 function validarNombre(nombre) {
   if (typeof nombre !== 'string') {
     throw new ErrorValidacion('El nombre es obligatorio');
@@ -99,6 +120,7 @@ function validarDatosCliente(datos) {
 }
 
 module.exports = {
+  validarId,
   validarNombre,
   validarCedula,
   validarTelefono,

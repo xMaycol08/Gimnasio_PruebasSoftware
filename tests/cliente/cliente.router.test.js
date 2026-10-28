@@ -8,6 +8,7 @@ jest.mock('../../src/modules/cliente/cliente.servicio', () => ({
 
 const { crearServicio } = require('../../src/modules/cliente/cliente.servicio');
 const { manejadorErrores } = require('../../src/shared/manejadorErrores');
+const { ErrorValidacion } = require('../../src/shared/errores');
 
 const cliente = {
   id_cliente: 1,
@@ -25,7 +26,6 @@ const servicio = {
   eliminar: jest.fn(),
 };
 
-// Configurar el servicio antes de cargar el router
 crearServicio.mockReturnValue(servicio);
 
 const router = require('../../src/modules/cliente/cliente.router');
@@ -61,6 +61,19 @@ describe('Rutas de clientes', () => {
     expect(respuesta.status).toBe(200);
     expect(respuesta.body).toEqual(cliente);
   });
+
+  test.each(['abc', '0', '-1', '1.5'])(
+    'GET /api/clientes/%s devuelve 400 para un ID inválido',
+    async (id) => {
+      servicio.obtenerPorId.mockRejectedValue(
+        new ErrorValidacion('El id debe ser un entero positivo')
+      );
+
+      const respuesta = await request(app).get(`/api/clientes/${id}`);
+
+      expect(respuesta.status).toBe(400);
+    }
+  );
 
   test('POST /api/clientes crea un cliente', async () => {
     const respuesta = await request(app)
