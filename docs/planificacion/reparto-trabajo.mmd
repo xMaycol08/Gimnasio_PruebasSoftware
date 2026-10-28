@@ -2,10 +2,10 @@
 title: Reparto de trabajo - Control de Membresías (Pruebas de Software)
 ---
 %% Equipo: Maycol, Rubén, Andres y Danny.
-%% Flujo: rama de funcionalidad -> Pull Request -> revisión de otro integrante -> merge a main.
-%% Reglas: main protegido, PR obligatorio, CI en verde (ESLint + Jest >= 70 %), SonarQube y Postman como entregables.
+%% Flujo: rama de funcionalidad -> Pull Request -> revisión de otro integrante -> merge a main (lo hace Maycol, con Squash).
+%% Reglas: PR obligatorio por acuerdo del grupo (sin protección técnica en GitHub), CI en verde (ESLint + Jest >= 70 %), SonarQube y Postman como entregables.
 flowchart TD
-    MAIN(["main (protegido)<br/>solo entra por Pull Request aprobado"])
+    MAIN(["main<br/>por acuerdo solo entra por Pull Request aprobado<br/>el merge lo hace Maycol (Squash)"])
 
     subgraph F0["Fase 0 - Base del proyecto"]
         M0["MAYCOL (hecha)<br/>Fase 0: base del proyecto<br/>- Express + conexión a Supabase (.env, .gitignore)<br/>- ESLint y Jest con umbral de cobertura 70 %<br/>- sonar-project.properties + guía SonarQube<br/>- GitHub Actions: lint + cobertura<br/>- Colección Postman base y guías por integrante"]

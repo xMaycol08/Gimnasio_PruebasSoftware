@@ -220,12 +220,13 @@ Como cada persona edita carpetas distintas, los conflictos de merge no deberían
 
 ### 6.2 Flujo de Git
 
-1. `main` está protegido: nadie hace push directo, todo entra por Pull Request.
+1. Por acuerdo del grupo, nadie hace push directo a `main`: todo entra por Pull Request. (GitHub no lo bloquea; depende de que todos lo respeten.)
 2. Antes de empezar: `git checkout main && git pull`, luego `git checkout -b feature/<funcionalidad>`.
 3. Commits pequeños y descriptivos con prefijos: `feat:`, `test:`, `fix:`, `docs:`, `refactor:`, `chore:`.
 4. Antes de abrir el PR: `git pull origin main` para traer los cambios, y ejecutar `npm run lint` y `npm run test:cov`.
-5. El PR lo revisa el integrante indicado en 4.1, y solo se fusiona con el CI en verde y al menos una aprobación.
-6. Después del merge, se elimina la rama de funcionalidad.
+5. El PR lo revisa el integrante indicado en 4.1 (comenta o aprueba). Solo se fusiona con el CI en verde y la aprobación del revisor.
+6. **Maycol hace el merge de todos los PRs** con **Squash and merge**, para que el historial de `main` quede uniforme y el mensaje del commit lo controle una sola persona.
+7. Después del merge, se elimina la rama de funcionalidad.
 
 ### 6.3 Orden recomendado de entrada a `main`
 
@@ -275,7 +276,7 @@ Cada defecto debe quedar en commits separados (`test:` que falla y luego `fix:`)
 - [ ] `npm run lint` sin errores.
 - [ ] Colección de Postman exportada en `docs/postman/`.
 - [ ] Análisis de SonarQube del módulo sin bugs ni vulnerabilidades.
-- [ ] PR aprobado por el revisor asignado y fusionado en `main`.
+- [ ] PR aprobado por el revisor asignado y fusionado en `main` por Maycol.
 
 ---
 

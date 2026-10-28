@@ -67,7 +67,7 @@ Anótalos en `docs/tareas/defectos-pagos.md` con el ciclo prueba que falla → c
 
 ## 9. Además: archivos globales (calidad del proyecto)
 Eres el dueño de `package.json`, `eslint.config.js`, `jest.config.js`, `sonar-project.properties`, `.github/workflows/` y `README.md`. Pendientes después de la Fase 0:
-- [ ] Activar protección de `main` en GitHub (*Settings → Branches*: exigir Pull Request y que el check `calidad` del CI pase; solo permitir Squash merge).
+- [ ] Fusionar los PRs de todos con **Squash and merge** (tú eres quien hace el merge) y verificar antes que el check `calidad` del CI esté en verde. `main` no tiene protección técnica: el acuerdo es que nadie sube directo.
 - [ ] Cuando los 4 módulos estén en `main`: correr SonarQube global (`docs/guias/sonarqube.md`) y recopilar el reporte (inicial y final).
 - [ ] Verificar la cobertura global ≥ 70 % (`npm run test:cov`).
 - [ ] Armar el informe final con capturas: SonarQube, cobertura Jest, lint y las colecciones de Postman.
@@ -83,4 +83,4 @@ Colección `pagos.postman_collection.json`. Prepárala con un cliente y una memb
 - [ ] `npm run lint` y `npm run test:cov` sin errores
 - [ ] Colección Postman exportada y subida
 - [ ] Sin problemas altos de SonarQube en tus archivos
-- [ ] PR aprobado por Rubén y fusionado con **Squash and merge**
+- [ ] PR revisado y aprobado por Rubén; lo fusionas tú con **Squash and merge**

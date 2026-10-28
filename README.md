@@ -88,9 +88,10 @@ El `.env` con la cadena de conexión real **no se sube a Git**: Maycol lo compar
 
 ## Flujo de trabajo
 
-1. `main` está protegido: no se hace push directo.
+1. Por acuerdo del grupo, nadie hace push directo a `main` (GitHub no lo bloquea, así que depende de todos): todo entra por Pull Request.
 2. Cada funcionalidad se desarrolla en su rama de funcionalidad (`feature/clientes`, `feature/membresias`, `feature/pagos`, `feature/accesos`), creada desde `main`.
-3. Se abre un Pull Request, lo revisa otro integrante y se fusiona con **Squash and merge** y el CI en verde (ESLint y Jest ≥ 70 %).
+3. Quien termina abre un Pull Request hacia `main`. Lo revisa el compañero asignado (comenta o aprueba) y debe tener el CI en verde (ESLint y Jest ≥ 70 %).
+4. **Maycol hace el merge de todos los PRs** con **Squash and merge**. Así el historial de `main` queda limpio y uniforme, y el mensaje del commit lo controla una sola persona.
 
 ## Estado
 
