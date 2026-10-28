@@ -1,8 +1,7 @@
 const calcularVencimiento = (fechaPago, duracionDias) => {
-  // DEFECTO INTENCIONAL 2: Cálculo ingenuo que fallará en bisiestos o cambios de huso horario
-  // al no usar Date.UTC estrictamente para la instanciación de todas las partes.
-  const fecha = new Date(fechaPago); 
-  fecha.setDate(fecha.getDate() + duracionDias);
+  const [year, month, day] = fechaPago.split('-').map(Number);
+  const fecha = new Date(Date.UTC(year, month - 1, day));
+  fecha.setUTCDate(fecha.getUTCDate() + duracionDias);
   return fecha.toISOString().split('T')[0];
 };
 

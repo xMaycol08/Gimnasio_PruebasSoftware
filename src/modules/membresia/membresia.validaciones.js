@@ -7,7 +7,6 @@ const validarMembresia = (datos) => {
     throw new ErrorValidacion('El nombre es obligatorio y debe tener entre 1 y 30 caracteres');
   }
   
-  // DEFECTO INTENCIONAL 1: Acepta precio = 0 (debería ser > 0)
   if (typeof precio !== 'number' || precio < 0 || precio >= 1000000) {
     throw new ErrorValidacion('El precio debe ser mayor a 0 y menor a 1,000,000');
   }

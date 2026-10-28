@@ -13,18 +13,18 @@ const crearServicio = ({ repositorio = require('./membresia.repositorio') } = {}
   },
 
   async listar() {
-    return repositorio.listar();
+    return await repositorio.listar();
   },
 
   async obtenerPorId(id) {
-    const membresia = await repositorio.buscarPorId(id);
-    if (!membresia) throw new ErrorNoEncontrado(`No existe la membresía ${id}`);
-    return membresia;
+    return await repositorio.buscarPorId(id);
   },
 
   async actualizar(id, datos) {
     const datosValidos = validarMembresia(datos);
-    await this.obtenerPorId(id); // Verifica existencia
+    const existe = await this.obtenerPorId(id);
+    if (!existe) throw new ErrorNoEncontrado(`No existe la membresía ${id}`);
+    
     try {
       return await repositorio.actualizar(id, datosValidos);
     } catch (error) {
@@ -34,13 +34,13 @@ const crearServicio = ({ repositorio = require('./membresia.repositorio') } = {}
   },
 
   async eliminar(id) {
-    await this.obtenerPorId(id); // Verifica existencia
+    const existe = await this.obtenerPorId(id);
+    if (!existe) throw new ErrorNoEncontrado(`No existe la membresía ${id}`);
+    
     try {
       await repositorio.eliminar(id);
     } catch (error) {
-      if (error.code === '23503') {
-        throw new ErrorConflicto('No se puede eliminar la membresía porque ya tiene pagos registrados');
-      }
+      if (error.code === '23503') throw new ErrorConflicto('No se puede eliminar la membresía porque ya tiene pagos registrados');
       throw error;
     }
   }
