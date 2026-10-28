@@ -70,12 +70,12 @@ Anótalos en `docs/tareas/defectos-accesos.md` con el ciclo prueba que falla →
 Colección `accesos.postman_collection.json`. Para probar el flujo completo necesitas un cliente con un pago `PAGADO` vigente; mientras no estén los otros módulos en `main`, insértalos desde el SQL Editor de Supabase. Guía: `docs/guias/postman.md`.
 
 ## 10. Definición de terminado
-- [ ] 4 endpoints funcionando contra Supabase
-- [ ] Reglas de entrada y salida con todos sus casos negativos
-- [ ] Contrato público implementado
-- [ ] Pruebas Jest de permanencia, servicio y router
-- [ ] 2 defectos intencionales documentados y corregidos
-- [ ] `npm run lint` y `npm run test:cov` sin errores
-- [ ] Colección Postman exportada y subida
-- [ ] Sin problemas altos de SonarQube en tus archivos
+- [x] 4 endpoints funcionando contra Supabase
+- [x] Reglas de entrada y salida con todos sus casos negativos
+- [x] Contrato público implementado
+- [x] Pruebas Jest de permanencia, servicio y router
+- [x] 2 defectos intencionales documentados y corregidos
+- [x] `npm run lint` y `npm run test:cov` sin errores
+- [x] Colección Postman exportada y subida
+- [x] Sin problemas altos de SonarQube en tus archivos
 - [ ] PR aprobado por Maycol y fusionado con **Squash and merge**
