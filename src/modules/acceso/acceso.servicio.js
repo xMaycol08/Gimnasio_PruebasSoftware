@@ -26,11 +26,6 @@ const crearServicio = ({
       throw new ErrorNoEncontrado(`El cliente con id ${idCliente} no existe`);
     }
 
-    const accesoAbierto = await repositorio.buscarAbiertoPorCliente(idCliente);
-    if (accesoAbierto) {
-      throw new ErrorConflicto('El cliente ya tiene una entrada abierta');
-    }
-
     const fechaYMD = extraerFechaYMD(fechaHora);
     const pagos = obtenerPagos();
     const tieneVigente = await pagos.tieneMembresiaVigente(idCliente, fechaYMD);
