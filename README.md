@@ -11,7 +11,7 @@ Proyecto corto de la asignatura **Pruebas de Software** (Carrera de Software, Un
 | Integrante | Responsabilidad principal |
 |---|---|
 | Maycol Celi | Pagos (`PAGO`) y configuración de calidad (Jest, ESLint, SonarQube, CI) |
-| Rubén Alejandro | Clientes (`CLIENTE`) |
+| Rubén Bustos | Clientes (`CLIENTE`) |
 | Andres Espinosa | Membresías (`MEMBRESIA`) |
 | Danny Tiupul | Accesos (`ACCESO`) |
 
