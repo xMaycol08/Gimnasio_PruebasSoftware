@@ -10,7 +10,7 @@ const hoy = () => {
 
 // Un pago da vigencia si fue PAGADO y la fecha cae entre el pago y el vencimiento.
 const esVigente = (pago, fecha) =>
-  pago.fecha_pago <= fecha && fecha < pago.fecha_vencimiento;
+  pago.estado === 'PAGADO' && pago.fecha_pago <= fecha && fecha <= pago.fecha_vencimiento;
 
 // Mayor vencimiento entre los pagos vigentes en la fecha, o null si no hay ninguno.
 const vencimientoVigente = (pagos, fecha) => {
