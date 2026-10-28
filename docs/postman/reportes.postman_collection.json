@@ -1,0 +1,443 @@
+{
+  "info": {
+    "name": "Reportes (Fase 2)",
+    "description": "Pruebas de /api/reportes/vencimientos y /api/reportes/asistencia, con casos correctos y de error. Conviene ejecutarla después de \"05 - Flujo completo\" para tener datos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Por vencer, por defecto 7 días (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Devuelve fecha, dias, total y clientes', () => pm.expect(pm.response.json()).to.have.keys('fecha', 'dias', 'total', 'clientes'));",
+              "pm.test('dias por defecto es 7', () => pm.expect(pm.response.json().dias).to.eql(7));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/vencimientos/por-vencer",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "vencimientos",
+            "por-vencer"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Por vencer en 365 días (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('total coincide con la lista', () => { const r = pm.response.json(); pm.expect(r.total).to.eql(r.clientes.length); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/vencimientos/por-vencer?dias=365",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "vencimientos",
+            "por-vencer"
+          ],
+          "query": [
+            {
+              "key": "dias",
+              "value": "365"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Por vencer con dias = 0 (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/vencimientos/por-vencer?dias=0",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "vencimientos",
+            "por-vencer"
+          ],
+          "query": [
+            {
+              "key": "dias",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Por vencer con dias = 366 (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/vencimientos/por-vencer?dias=366",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "vencimientos",
+            "por-vencer"
+          ],
+          "query": [
+            {
+              "key": "dias",
+              "value": "366"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Por vencer con fecha inválida (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/vencimientos/por-vencer?fecha=2026-02-30",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "vencimientos",
+            "por-vencer"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "2026-02-30"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Morosos (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Cada moroso trae su motivo', () => pm.response.json().clientes.forEach((c) => pm.expect(['MEMBRESIA_VENCIDA', 'PAGO_PENDIENTE']).to.include(c.motivo)));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/vencimientos/morosos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "vencimientos",
+            "morosos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "7. Morosos con fecha inválida (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/vencimientos/morosos?fecha=ayer",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "vencimientos",
+            "morosos"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "ayer"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. Asistencia del último mes (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Devuelve el rango y los clientes', () => pm.expect(pm.response.json()).to.have.keys('desde', 'hasta', 'total_visitas', 'clientes'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/asistencia",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "asistencia"
+          ]
+        }
+      }
+    },
+    {
+      "name": "9. Asistencia con rango explícito de un año (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Respeta el rango pedido', () => { const r = pm.response.json(); pm.expect(r.desde).to.eql('2026-01-01'); pm.expect(r.hasta).to.eql('2026-12-31'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/asistencia?desde=2026-01-01&hasta=2026-12-31",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "asistencia"
+          ],
+          "query": [
+            {
+              "key": "desde",
+              "value": "2026-01-01"
+            },
+            {
+              "key": "hasta",
+              "value": "2026-12-31"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "9b. Asistencia con rango mayor a 366 días (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/asistencia?desde=2020-01-01&hasta=2030-12-31",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "asistencia"
+          ],
+          "query": [
+            {
+              "key": "desde",
+              "value": "2020-01-01"
+            },
+            {
+              "key": "hasta",
+              "value": "2030-12-31"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "10. Asistencia con desde posterior a hasta (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/asistencia?desde=2026-04-01&hasta=2026-03-01",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "asistencia"
+          ],
+          "query": [
+            {
+              "key": "desde",
+              "value": "2026-04-01"
+            },
+            {
+              "key": "hasta",
+              "value": "2026-03-01"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "11. Asistencia con fecha inválida (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/asistencia?desde=enero",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "asistencia"
+          ],
+          "query": [
+            {
+              "key": "desde",
+              "value": "enero"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

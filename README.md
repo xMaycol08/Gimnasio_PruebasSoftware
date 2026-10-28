@@ -85,6 +85,7 @@ El `.env` con la cadena de conexión real **no se sube a Git**: Maycol lo compar
 | [`docs/planificacion/asignacion-y-arquitectura.md`](docs/planificacion/asignacion-y-arquitectura.md) | Funcionamiento, arquitectura, contratos y reglas anti-conflicto |
 | [`docs/guias/`](docs/guias/) | Inicio rápido, plantilla de módulo, Postman y SonarQube |
 | [`docs/tareas/`](docs/tareas/) | Guía detallada por integrante: endpoints, reglas, pruebas y checklist |
+| [`docs/tareas/fase-2.md`](docs/tareas/fase-2.md) | Integración entre módulos, reportes y uso de la base de datos |
 
 ## Flujo de trabajo
 

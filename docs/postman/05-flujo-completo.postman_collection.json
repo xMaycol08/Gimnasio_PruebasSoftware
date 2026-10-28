@@ -1,0 +1,482 @@
+{
+  "info": {
+    "name": "05 - Flujo completo (integración)",
+    "description": "Recorre los 4 módulos y los reportes en orden: membresía -> cliente -> entrada sin pago -> pago -> vigencia -> entrada y salida -> reportes.\n\nCon la API corriendo (npm run dev) y conectada a Supabase. Ejecútala completa con Run collection: crea datos reales y únicos en cada ejecución. Solo verifica comportamientos que no dependen de los defectos intencionales.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Crear membresía (201)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Datos únicos en cada ejecución: así la colección se puede repetir sin choques con la base",
+              "const sufijo = Date.now().toString().slice(-8);",
+              "pm.collectionVariables.set('nombreMembresia', 'plan' + sufijo);",
+              "pm.collectionVariables.set('emailCliente', 'cliente' + sufijo + '@gym.com');",
+              "// Cédula ecuatoriana válida: provincia 17, tercer dígito 1, 6 dígitos al azar y dígito verificador",
+              "const base = '171' + String(Math.floor(Math.random() * 1e6)).padStart(6, '0');",
+              "let suma = 0;",
+              "for (let i = 0; i < 9; i++) { let v = Number(base[i]); if (i % 2 === 0) { v *= 2; if (v > 9) { v -= 9; } } suma += v; }",
+              "pm.collectionVariables.set('cedulaCliente', base + ((10 - (suma % 10)) % 10));",
+              "// Fecha de hoy en hora local (igual que usa el servidor)",
+              "const d = new Date();",
+              "const dos = (n) => String(n).padStart(2, '0');",
+              "pm.collectionVariables.set('hoy', d.getFullYear() + '-' + dos(d.getMonth() + 1) + '-' + dos(d.getDate()));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('idMembresia', pm.response.json().id_membresia);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/membresias",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "membresias"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"{{nombreMembresia}}\",\n  \"precio\": 30,\n  \"duracion_dias\": 30\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "2. Crear cliente (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('idCliente', pm.response.json().id_cliente);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/clientes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "clientes"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cliente de Postman\",\n  \"cedula\": \"{{cedulaCliente}}\",\n  \"telefono\": \"0999999999\",\n  \"email\": \"{{emailCliente}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "3. Cédula repetida (409)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 409', () => pm.response.to.have.status(409));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/clientes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "clientes"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Repetido\",\n  \"cedula\": \"{{cedulaCliente}}\",\n  \"email\": \"otro-{{emailCliente}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "4. Entrada sin pago (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/accesos/entrada",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accesos",
+            "entrada"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "5. Registrar pago (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+              "pm.test('Estado PAGADO', () => pm.expect(pm.response.json().estado).to.eql('PAGADO'));",
+              "pm.collectionVariables.set('idPago', pm.response.json().id_pago);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}},\n  \"id_membresia\": {{idMembresia}},\n  \"fecha_pago\": \"{{hoy}}\",\n  \"monto\": 30\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "6. Monto incorrecto (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+              "pm.test('Devuelve un mensaje de error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}},\n  \"id_membresia\": {{idMembresia}},\n  \"fecha_pago\": \"2019-01-01\",\n  \"monto\": 5\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "7. Vigencia de hoy (vigente)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Vigente', () => pm.expect(pm.response.json().vigente).to.be.true);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos/vigencia/{{idCliente}}?fecha={{hoy}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "pagos",
+            "vigencia",
+            "{{idCliente}}"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "{{hoy}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. Registrar entrada (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+              "pm.test('Sin salida todavía', () => pm.expect(pm.response.json().fecha_hora_salida).to.be.null);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/accesos/entrada",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accesos",
+            "entrada"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "9. Registrar salida (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Con salida', () => pm.expect(pm.response.json().fecha_hora_salida).to.not.be.null);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/accesos/salida",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accesos",
+            "salida"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_cliente\": {{idCliente}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "10. Reporte: por vencer en 30 días (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Incluye al cliente', () => pm.expect(pm.response.json().clientes.map((c) => c.id_cliente)).to.include(Number(pm.collectionVariables.get('idCliente'))));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/vencimientos/por-vencer?dias=30",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "vencimientos",
+            "por-vencer"
+          ],
+          "query": [
+            {
+              "key": "dias",
+              "value": "30"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "11. Reporte: asistencia (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Hay al menos una visita', () => pm.expect(pm.response.json().total_visitas).to.be.at.least(1));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reportes/asistencia",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reportes",
+            "asistencia"
+          ]
+        }
+      }
+    }
+  ]
+}
