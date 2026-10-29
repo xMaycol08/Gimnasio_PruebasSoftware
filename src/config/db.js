@@ -5,7 +5,7 @@ types.setTypeParser(types.builtins.DATE, (valor) => valor);
 // TIMESTAMP (sin zona) se guarda y se lee siempre como UTC.
 types.setTypeParser(types.builtins.TIMESTAMP, (valor) => new Date(`${valor.replace(' ', 'T')}Z`));
 // NUMERIC (precio, monto) llega como número y no como texto.
-types.setTypeParser(types.builtins.NUMERIC, parseFloat);
+types.setTypeParser(types.builtins.NUMERIC, Number.parseFloat);
 
 let pool;
 

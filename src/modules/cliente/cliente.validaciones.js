@@ -98,7 +98,7 @@ function validarEmail(email) {
 
   if (
     emailLimpio.length > 120 ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpio)
+    !/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(emailLimpio)
   ) {
     throw new ErrorValidacion('El correo electrónico no es válido');
   }
