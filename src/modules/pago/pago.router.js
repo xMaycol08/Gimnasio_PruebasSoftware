@@ -36,7 +36,7 @@ const crearRouter = (servicio) => {
   router.patch(
     '/:id/estado',
     asyncHandler(async (req, res) => {
-      res.json(await servicio.cambiarEstado(req.params.id, (req.body || {}).estado));
+      res.json(await servicio.cambiarEstado(req.params.id, req.body?.estado));
     })
   );
 
