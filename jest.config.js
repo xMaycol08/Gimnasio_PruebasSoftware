@@ -21,7 +21,6 @@ const fueraDeCobertura = [
   'tests/reporte-asistencia/index\\.test\\.js',
   // Ajuste fino de la cobertura global
   'tests/acceso/acceso\\.validaciones\\.test\\.js',
-  'tests/membresia/membresia\\.fechas\\.test\\.js',
   'tests/pago/pago\\.validaciones\\.test\\.js',
   'tests/pago/pago\\.vigencia\\.test\\.js',
   'tests/reporte-asistencia/reporte\\.asistencia\\.servicio\\.test\\.js',

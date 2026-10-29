@@ -75,4 +75,22 @@ describe('Membresia Router', () => {
     const resNegativo = await request(app).get('/api/membresias/-5');
     expect(resNegativo.status).toBe(400);
   });
+
+  test('GET /api/membresias/:id (200) - encontrada', async () => {
+    servicioFalso.obtenerPorId.mockResolvedValue({ id_membresia: 1, nombre: 'Semanal' });
+    const res = await request(app).get('/api/membresias/1');
+    expect(res.status).toBe(200);
+    expect(res.body.nombre).toBe('Semanal');
+  });
+
+  test('PUT /api/membresias/:id (200) - actualiza correctamente', async () => {
+    servicioFalso.actualizar.mockResolvedValue({ id_membresia: 1, nombre: 'Modificada' });
+    const res = await request(app).put('/api/membresias/1').send({ nombre: 'Modificada', precio: 10, duracion_dias: 7 });
+    expect(res.status).toBe(200);
+  });
+
+  test('PUT /api/membresias/:id (400) - falla si el id no es válido', async () => {
+    const res = await request(app).put('/api/membresias/abc').send({ nombre: 'x', precio: 10, duracion_dias: 7 });
+    expect(res.status).toBe(400);
+  });
 });

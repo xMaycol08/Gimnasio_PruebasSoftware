@@ -10,12 +10,10 @@ describe('membresia.fechas (cálculo de vencimiento)', () => {
   });
 
   test('calcula correctamente el cruce de mes en febrero bisiesto', () => {
-    // 2028 es bisiesto, febrero tiene 29
     expect(calcularVencimiento('2028-02-28', 1)).toBe('2028-02-29');
   });
 
   test('calcula correctamente el cruce de mes en febrero NO bisiesto', () => {
-    // 2027 NO es bisiesto, febrero tiene 28
     expect(calcularVencimiento('2027-02-28', 1)).toBe('2027-03-01');
   });
 

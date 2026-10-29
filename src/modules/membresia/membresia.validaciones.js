@@ -7,7 +7,7 @@ const validarMembresia = (datos) => {
     throw new ErrorValidacion('El nombre es obligatorio y debe tener entre 1 y 30 caracteres');
   }
   
-  if (typeof precio !== 'number' || precio < 0 || precio >= 1000000) {
+  if (typeof precio !== 'number' || precio <= 0 || precio >= 1000000) {
     throw new ErrorValidacion('El precio debe ser mayor a 0 y menor a 1,000,000');
   }
   
@@ -15,7 +15,7 @@ const validarMembresia = (datos) => {
     throw new ErrorValidacion('La duración en días debe ser un número entero mayor a 0');
   }
 
-  return { nombre: nombre.trim(), precio, duracion_dias };
+  return { nombre: nombre.trim().toLowerCase(), precio, duracion_dias };
 };
 
 module.exports = { validarMembresia };
